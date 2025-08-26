@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useState, useEffect } from 'react';
 import { storepassService, shopifyService, apiService } from '../services';
 
@@ -129,6 +130,48 @@ export const useBuylists = () => {
   useEffect(() => {
     loadBuylists();
   }, []);
+=======
+import { useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { 
+  fetchBuylists, 
+  updateBuylistStatus as updateStatus, 
+  clearError 
+} from '../store/slices/buylistSlice';
+
+export const useBuylists = () => {
+  const dispatch = useDispatch();
+  const { items: buylists, loading, error } = useSelector(state => state.buylists);
+  const hasInitiallyLoaded = useRef(false);
+
+  // Completely disable automatic loading to prevent infinite loop
+  // Manual loading only via the refresh button
+  
+  const updateBuylistStatus = async (buylistId, newStatus, employee) => {
+    const result = await dispatch(updateStatus({ 
+      id: buylistId, 
+      status: newStatus, 
+      notes: `Status changed by ${employee}` 
+    }));
+    
+    if (result.type === 'buylists/updateStatus/fulfilled') {
+      return result.payload;
+    }
+    throw new Error(result.payload || 'Update failed');
+  };
+
+  const importFromStorepass = async (storepassBuylist, employee) => {
+    // For now, just log - we'll implement this later
+    console.log('Import from Storepass:', storepassBuylist.id);
+    return storepassBuylist;
+  };
+
+  const refresh = () => {
+    console.log('Manual refresh triggered');
+    hasInitiallyLoaded.current = true;
+    dispatch(fetchBuylists());
+  };
+>>>>>>> 6e0dcc1 (Add real API integration and authentication system)
 
   return {
     buylists,
@@ -136,6 +179,11 @@ export const useBuylists = () => {
     error,
     updateBuylistStatus,
     importFromStorepass,
+<<<<<<< HEAD
     refresh: loadBuylists
+=======
+    refresh,
+    clearError: () => dispatch(clearError())
+>>>>>>> 6e0dcc1 (Add real API integration and authentication system)
   };
 };
